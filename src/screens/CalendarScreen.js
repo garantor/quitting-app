@@ -274,7 +274,7 @@ const CalendarScreen = () => {
             color={Colors.light.textSecondary}
           />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Porn-Free Tracker</Text>
+        <Text style={styles.headerTitle}>Free Tracker</Text>
         <View style={styles.headerSpacer} />
       </View>
 

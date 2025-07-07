@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "porn-quitting-app",
-    "slug": "porn-quitting-app",
+    "name": "quitting-app",
+    "slug": "quitting-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

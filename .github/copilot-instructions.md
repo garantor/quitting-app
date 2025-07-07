@@ -4,7 +4,7 @@
 
 ## Project Context
 
-This is a React Native Expo app called "Clarity" - a porn addiction recovery app designed to help users track their progress, maintain streaks, and get support through their recovery journey.
+This is a React Native Expo app called "Clarity" - a addiction recovery app designed to help users track their progress, maintain streaks, and get support through their recovery journey.
 
 ## Key Features & Requirements
 

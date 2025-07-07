@@ -1,6 +1,6 @@
-# Clarity - Porn Addiction Recovery App
+# Clarity - Addiction Recovery App
 
-A React Native mobile application designed to help users on their journey to overcome porn addiction through tracking, support, and mindfulness features.
+A React Native mobile application designed to help users on their journey to overcome addiction through tracking, support, and mindfulness features.
 
 ## Features
 
@@ -47,7 +47,7 @@ A React Native mobile application designed to help users on their journey to ove
 
 ```bash
 git clone <repository-url>
-cd porn-quitting-app
+cd quitting-app
 ```
 
 2. Install dependencies:
