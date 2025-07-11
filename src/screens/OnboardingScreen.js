@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useUser } from "../context/UserContext";
 import Button from "../components/Button";
-import { Colors, Spacing, FontSizes, BorderRadius } from "../constants/theme";
+import { colors, spacing, fontSizes, borderRadius } from "../constants/theme";
 
 const { width } = Dimensions.get("window");
 
@@ -138,7 +138,7 @@ const OnboardingScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.light.background,
   },
   scrollView: {
     flex: 1,
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   slide: {
     width,
     flex: 1,
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -154,12 +154,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: Spacing.xxl,
+    marginTop: spacing.xxl,
   },
   placeholderImage: {
     width: 200,
     height: 200,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 100,
     justifyContent: "center",
     alignItems: "center",
@@ -169,50 +169,50 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingTop: Spacing.xxl,
+    paddingTop: spacing.xxl,
     alignItems: "center",
   },
   title: {
-    fontSize: FontSizes.xxxl,
+    fontSize: fontSizes.xxxl,
     fontWeight: "bold",
-    color: Colors.light.text,
+    color: colors.light.text,
     textAlign: "center",
-    marginBottom: Spacing.sm,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: FontSizes.lg,
-    color: Colors.primary,
+    fontSize: fontSizes.lg,
+    color: colors.primary,
     textAlign: "center",
-    marginBottom: Spacing.md,
+    marginBottom: spacing.md,
     fontWeight: "600",
   },
   description: {
-    fontSize: FontSizes.md,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.md,
+    color: colors.light.textSecondary,
     textAlign: "center",
     lineHeight: 24,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: spacing.md,
   },
   pagination: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: Spacing.lg,
+    paddingVertical: spacing.lg,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.light.border,
+    backgroundColor: colors.light.border,
     marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     width: 24,
   },
   footer: {
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.xl,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
   },
   skipButton: {
     flex: 1,
-    marginRight: Spacing.md,
+    marginRight: spacing.md,
   },
   nextButton: {
     flex: 2,

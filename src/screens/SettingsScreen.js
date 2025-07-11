@@ -10,7 +10,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors, Spacing, BorderRadius, FontSizes } from "../constants/theme";
+import { colors, spacing, borderRadius, fontSizes } from "../constants/theme";
 import { useUser } from "../context/UserContext";
 
 const SettingsScreen = ({ navigation }) => {
@@ -19,7 +19,7 @@ const SettingsScreen = ({ navigation }) => {
   const [encryptData, setEncryptData] = useState(true);
   const [dailyCheckInTime, setDailyCheckInTime] = useState("10:00 PM");
 
-  const currentColors = isDarkMode ? Colors.dark : Colors.light;
+  const currentColors = isDarkMode ? colors.dark : colors.light;
 
   const handleDailyCheckInTime = () => {
     Alert.alert(
@@ -126,7 +126,7 @@ const SettingsScreen = ({ navigation }) => {
         <Switch
           value={value}
           onValueChange={onValueChange}
-          trackColor={{ false: currentColors.border, true: Colors.primary }}
+          trackColor={{ false: currentColors.border, true: colors.primary }}
           thumbColor={value ? "#ffffff" : "#f4f3f4"}
           ios_backgroundColor={currentColors.border}
         />
@@ -169,7 +169,7 @@ const SettingsScreen = ({ navigation }) => {
               ]}
             >
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: Colors.primary }]}>
+                <Text style={[styles.statNumber, { color: colors.primary }]}>
                   {streak}
                 </Text>
                 <Text
@@ -188,7 +188,7 @@ const SettingsScreen = ({ navigation }) => {
                 ]}
               />
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: Colors.secondary }]}>
+                <Text style={[styles.statNumber, { color: colors.secondary }]}>
                   {journalEntries?.length || 0}
                 </Text>
                 <Text
@@ -317,16 +317,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    height: 60,
-    paddingHorizontal: Spacing.md,
-    borderBottomWidth: 1,
-  },
+header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.md,
+  borderBottomWidth: 1,
+  minHeight: 60, // Changed from 80 to 60
+},
   headerTitle: {
-    fontSize: FontSizes.xl,
+    fontSize: fontSizes.xl,
     fontWeight: "bold",
   },
   spacer: {
@@ -336,21 +337,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.md,
-    paddingBottom: Spacing.xxl,
+    padding: spacing.md,
+    paddingBottom: spacing.xxl,
   },
   section: {
-    marginBottom: Spacing.lg,
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontSize: FontSizes.xs,
+    fontSize: fontSizes.xs,
     fontWeight: "600",
-    marginBottom: Spacing.xs,
-    paddingHorizontal: Spacing.md,
+    marginBottom: spacing.xs,
+    paddingHorizontal: spacing.md,
     letterSpacing: 1,
   },
   sectionContent: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: borderRadius.lg,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -364,11 +365,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
   },
   settingsItemText: {
-    fontSize: FontSizes.md,
+    fontSize: fontSizes.md,
     flex: 1,
   },
   rightContainer: {
@@ -376,16 +377,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   timeText: {
-    fontSize: FontSizes.md,
-    marginRight: Spacing.xs,
+    fontSize: fontSizes.md,
+    marginRight: spacing.xs,
   },
   arrow: {
-    marginLeft: Spacing.xs,
+    marginLeft: spacing.xs,
   },
   statsContainer: {
     flexDirection: "row",
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.lg,
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
   },
   statItem: {
     flex: 1,
@@ -393,15 +394,15 @@ const styles = StyleSheet.create({
   },
   statDivider: {
     width: 1,
-    marginHorizontal: Spacing.md,
+    marginHorizontal: spacing.md,
   },
   statNumber: {
-    fontSize: FontSizes.xxxl,
+    fontSize: fontSizes.xxxl,
     fontWeight: "bold",
-    marginBottom: Spacing.xs,
+    marginBottom: spacing.xs,
   },
   statLabel: {
-    fontSize: FontSizes.sm,
+    fontSize: fontSizes.sm,
     textAlign: "center",
   },
 });

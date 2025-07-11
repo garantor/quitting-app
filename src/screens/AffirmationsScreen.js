@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,19 @@ import {
   SafeAreaView,
   ScrollView,
   ImageBackground,
+  FlatList,
 } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { UserContext } from '../context/UserContext';
 import Card from "../components/Card";
-import { Colors, Spacing, FontSizes, BorderRadius } from "../constants/theme";
+import { colors, spacing, fontSizes, borderRadius } from "../constants/theme";
 
-const AffirmationsScreen = () => {
+export default function AffirmationsScreen() {
   const [selectedCategory, setSelectedCategory] = useState("Growth");
   const [favorites, setFavorites] = useState(new Set());
+  const [currentAffirmation, setCurrentAffirmation] = useState("");
+  const { isDarkMode } = useContext(UserContext);
+  const currentColors = isDarkMode ? colors.dark : colors.light;
 
   const categories = ["Growth", "Mindfulness", "Spiritual", "Confidence"];
 
@@ -99,9 +105,20 @@ const AffirmationsScreen = () => {
     },
   ];
 
+  // Initialize with daily affirmation
+  React.useEffect(() => {
+    setCurrentAffirmation(dailyAffirmation.text);
+  }, []);
+
   const filteredAffirmations = affirmations.filter(
     (affirmation) => affirmation.category === selectedCategory
   );
+
+  const getRandomAffirmation = () => {
+    const allAffirmations = [dailyAffirmation, ...affirmations];
+    const randomIndex = Math.floor(Math.random() * allAffirmations.length);
+    setCurrentAffirmation(allAffirmations[randomIndex].text);
+  };
 
   const toggleFavorite = (id) => {
     setFavorites((prev) => {
@@ -116,17 +133,22 @@ const AffirmationsScreen = () => {
   };
 
   const renderHeader = () => (
-    <View style={styles.header}>
+    <View style={[styles.header, { borderBottomColor: currentColors.border }]}>
       <View style={styles.spacer} />
-      <Text style={styles.headerTitle}>Affirmations</Text>
+      <Text style={[styles.headerTitle, { color: currentColors.text }]}>
+        Affirmations
+      </Text>
       <TouchableOpacity style={styles.favoritesButton}>
-        <Text style={styles.heartIcon}>❤️</Text>
+        <Ionicons name="heart" size={24} color={colors.error} />
       </TouchableOpacity>
     </View>
   );
 
   const renderDailyAffirmation = () => (
     <View style={styles.dailySection}>
+      <Text style={[styles.sectionTitle, { color: currentColors.text }]}>
+        Daily Affirmation
+      </Text>
       <TouchableOpacity style={styles.dailyCard}>
         <ImageBackground
           source={{ uri: dailyAffirmation.image }}
@@ -134,51 +156,67 @@ const AffirmationsScreen = () => {
           imageStyle={styles.dailyCardImage}
         >
           <View style={styles.dailyCardOverlay}>
-            <Text style={styles.dailyCardText}>"{dailyAffirmation.text}"</Text>
+            <Text style={styles.dailyCardText}>"{currentAffirmation}"</Text>
           </View>
         </ImageBackground>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.favoriteActionButton}
-        onPress={() => toggleFavorite(dailyAffirmation.id)}
+        style={[styles.favoriteActionButton, { backgroundColor: colors.primary }]}
+        onPress={getRandomAffirmation}
       >
-        <Text style={styles.favoriteActionIcon}>❤️</Text>
-        <Text style={styles.favoriteActionText}>Save to Favorites</Text>
+        <Ionicons name="refresh" size={20} color="#FFFFFF" />
+        <Text style={styles.favoriteActionText}>New Affirmation</Text>
       </TouchableOpacity>
     </View>
   );
 
   const renderCategoryFilter = () => (
     <View style={styles.filterSection}>
-      <Text style={styles.filterTitle}>Filter by Category</Text>
-      <View style={styles.categoryButtons}>
+      <Text style={[styles.filterTitle, { color: currentColors.text }]}>
+        Browse by Category
+      </Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryButtons}
+      >
         {categories.map((category) => (
           <TouchableOpacity
             key={category}
             style={[
               styles.categoryButton,
-              selectedCategory === category && styles.selectedCategoryButton,
+              { 
+                backgroundColor: currentColors.surface,
+                borderColor: currentColors.border 
+              },
+              selectedCategory === category && { 
+                backgroundColor: colors.primary,
+                borderColor: colors.primary 
+              },
             ]}
             onPress={() => setSelectedCategory(category)}
           >
             <Text
               style={[
                 styles.categoryButtonText,
-                selectedCategory === category &&
-                  styles.selectedCategoryButtonText,
+                { color: currentColors.text },
+                selectedCategory === category && { color: "#FFFFFF" },
               ]}
             >
               {category}
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
     </View>
   );
 
   const renderAffirmation = ({ item }) => (
-    <TouchableOpacity style={styles.affirmationCard}>
+    <TouchableOpacity 
+      style={styles.affirmationCard}
+      onPress={() => setCurrentAffirmation(item.text)}
+    >
       <ImageBackground
         source={{ uri: item.image }}
         style={styles.affirmationCardBackground}
@@ -186,192 +224,181 @@ const AffirmationsScreen = () => {
       >
         <View style={styles.affirmationCardOverlay}>
           <Text style={styles.affirmationCardText}>"{item.text}"</Text>
+          <TouchableOpacity
+            style={styles.favoriteIcon}
+            onPress={() => toggleFavorite(item.id)}
+          >
+            <Ionicons 
+              name={favorites.has(item.id) ? "heart" : "heart-outline"} 
+              size={24} 
+              color={favorites.has(item.id) ? colors.error : "#FFFFFF"}
+            />
+          </TouchableOpacity>
         </View>
       </ImageBackground>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.background }]}>
       {renderHeader()}
-
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {renderDailyAffirmation()}
         {renderCategoryFilter()}
-
+        
         <View style={styles.affirmationsGrid}>
-          {filteredAffirmations.map((affirmation) => (
-            <View key={affirmation.id} style={styles.affirmationItem}>
-              {renderAffirmation({ item: affirmation })}
-            </View>
-          ))}
+          <FlatList
+            data={filteredAffirmations}
+            renderItem={renderAffirmation}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            scrollEnabled={false}
+            columnWrapperStyle={styles.row}
+            ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
-  },
+header: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: spacing.lg,
+  paddingVertical: spacing.md,
+  borderBottomWidth: 1,
+  minHeight: 60, // Changed from 80 to 60
+},
   spacer: {
-    width: 48,
+    width: 24,
   },
   headerTitle: {
-    fontSize: FontSizes.xl,
-    fontWeight: "bold",
-    color: "#1F2937",
-    flex: 1,
-    textAlign: "center",
+    fontSize: fontSizes.xl,
+    fontWeight: 'bold',
   },
   favoritesButton: {
-    width: 48,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 24,
-  },
-  heartIcon: {
-    fontSize: 24,
-    color: "#6B7280",
+    padding: spacing.sm,
   },
   scrollView: {
     flex: 1,
+    paddingHorizontal: spacing.lg,
+  },
+  sectionTitle: {
+    fontSize: fontSizes.lg,
+    fontWeight: '600',
+    marginBottom: spacing.md,
+    marginTop: spacing.lg,
   },
   dailySection: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xl,
-    alignItems: "center",
+    marginBottom: spacing.xl,
   },
   dailyCard: {
-    width: "100%",
-    height: 256,
-    marginBottom: Spacing.md,
+    height: 200,
+    borderRadius: borderRadius.lg,
+    overflow: 'hidden',
+    marginBottom: spacing.md,
   },
   dailyCardBackground: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   dailyCardImage: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: borderRadius.lg,
   },
   dailyCardOverlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.lg,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    padding: spacing.lg,
+    borderRadius: borderRadius.lg,
+    margin: spacing.md,
   },
   dailyCardText: {
-    fontSize: FontSizes.xxl,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    textAlign: "left",
-    lineHeight: 32,
+    color: '#FFFFFF',
+    fontSize: fontSizes.lg,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 28,
   },
   favoriteActionButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: 25,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  favoriteActionIcon: {
-    fontSize: 20,
-    color: "#EF4444",
-    marginRight: Spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    gap: spacing.sm,
   },
   favoriteActionText: {
-    fontSize: FontSizes.md,
-    fontWeight: "600",
-    color: "#1F2937",
+    color: '#FFFFFF',
+    fontSize: fontSizes.md,
+    fontWeight: '600',
   },
   filterSection: {
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
-    marginHorizontal: -Spacing.md,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    marginBottom: Spacing.lg,
+    marginBottom: spacing.lg,
   },
   filterTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: "600",
-    color: "#1F2937",
-    marginBottom: Spacing.md,
+    fontSize: fontSizes.lg,
+    fontWeight: '600',
+    marginBottom: spacing.md,
   },
   categoryButtons: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.sm,
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingRight: spacing.lg,
   },
   categoryButton: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: 20,
-    backgroundColor: "#E5E7EB",
-  },
-  selectedCategoryButton: {
-    backgroundColor: "#DBEAFE",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.lg,
+    borderWidth: 1,
   },
   categoryButtonText: {
-    fontSize: FontSizes.sm,
-    fontWeight: "500",
-    color: "#6B7280",
-  },
-  selectedCategoryButtonText: {
-    color: "#1D4ED8",
+    fontSize: fontSizes.sm,
+    fontWeight: '500',
   },
   affirmationsGrid: {
-    paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.xl,
+    marginBottom: spacing.xl,
   },
-  affirmationItem: {
-    marginBottom: Spacing.lg,
+  row: {
+    justifyContent: 'space-between',
   },
   affirmationCard: {
-    height: 224,
+    flex: 1,
+    height: 150,
+    borderRadius: borderRadius.md,
+    overflow: 'hidden',
+    marginHorizontal: spacing.xs,
   },
   affirmationCardBackground: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: 'flex-end',
   },
   affirmationCardImage: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: borderRadius.md,
   },
   affirmationCardOverlay: {
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
-    padding: Spacing.lg,
-    borderRadius: BorderRadius.lg,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: spacing.md,
+    position: 'relative',
   },
   affirmationCardText: {
-    fontSize: FontSizes.xl,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    textAlign: "left",
-    lineHeight: 28,
+    color: '#FFFFFF',
+    fontSize: fontSizes.sm,
+    fontWeight: '500',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  favoriteIcon: {
+    position: 'absolute',
+    top: spacing.sm,
+    right: spacing.sm,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 20,
+    padding: spacing.xs,
   },
 });
-
-export default AffirmationsScreen;

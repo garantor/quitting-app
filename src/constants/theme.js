@@ -1,5 +1,5 @@
 // Color palette for the Clarity app
-export const Colors = {
+export const colors = {
   primary: "#10B981",
   secondary: "#3B82F6",
   success: "#10B981",
@@ -23,7 +23,7 @@ export const Colors = {
   },
 };
 
-export const Spacing = {
+export const spacing = {
   xs: 4,
   sm: 8,
   md: 16,
@@ -32,14 +32,14 @@ export const Spacing = {
   xxl: 48,
 };
 
-export const BorderRadius = {
+export const borderRadius = {
   sm: 8,
   md: 12,
   lg: 16,
   xl: 24,
 };
 
-export const FontSizes = {
+export const fontSizes = {
   xs: 12,
   sm: 14,
   md: 16,
@@ -47,4 +47,12 @@ export const FontSizes = {
   xl: 20,
   xxl: 24,
   xxxl: 32,
+};
+
+// Default export for easier importing
+export default {
+  colors,
+  spacing,
+  borderRadius,
+  fontSizes,
 };

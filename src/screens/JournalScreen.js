@@ -1,21 +1,23 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
+import React, { useState, useContext } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
   TextInput,
-  TouchableOpacity,
   FlatList,
-  SafeAreaView,
-} from "react-native";
-import { useUser } from "../context/UserContext";
-import Button from "../components/Button";
-import Card from "../components/Card";
-import { Colors, Spacing, FontSizes, BorderRadius } from "../constants/theme";
+  SafeAreaView 
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { UserContext } from '../context/UserContext';
+import { colors, spacing, fontSizes, borderRadius } from '../constants/theme';
+import Card from '../components/Card';
+import Button from '../components/Button';
 
-const JournalScreen = () => {
-  const { journalEntries, addJournalEntry } = useUser();
+export default function JournalScreen({ navigation }) {
+  const { isDarkMode, journalEntries, addJournalEntry } = useContext(UserContext);
+  const currentColors = isDarkMode ? colors.dark : colors.light;
   const [selectedMood, setSelectedMood] = useState("");
   const [noteText, setNoteText] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
@@ -31,7 +33,7 @@ const JournalScreen = () => {
 
   const tags = [
     "Urge",
-    "Trigger",
+    "Trigger", 
     "Victory",
     "Grateful",
     "Stressed",
@@ -56,9 +58,11 @@ const JournalScreen = () => {
     if (!selectedMood && !noteText.trim()) return;
 
     const entry = {
+      id: Date.now().toString(),
       mood: selectedMood,
       note: noteText.trim(),
       tags: selectedTags,
+      date: new Date().toISOString(),
     };
 
     addJournalEntry(entry);
@@ -69,67 +73,113 @@ const JournalScreen = () => {
     setSelectedTags([]);
   };
 
-  const renderMoodSelector = () => {
-    return (
-      <Card>
-        <Text style={styles.sectionTitle}>How are you feeling?</Text>
-        <View style={styles.moodContainer}>
-          {moods.map((mood) => (
-            <TouchableOpacity
-              key={mood.value}
-              style={[
-                styles.moodButton,
-                selectedMood === mood.value && styles.selectedMood,
-              ]}
-              onPress={() => handleMoodSelect(mood.value)}
-            >
-              <Text style={styles.moodEmoji}>{mood.emoji}</Text>
-              <Text style={styles.moodLabel}>{mood.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Card>
-    );
-  };
+  const renderHeader = () => (
+    <View style={[styles.header, { borderBottomColor: currentColors.border }]}>
+      <Text style={[styles.headerTitle, { color: currentColors.text }]}>
+        Recovery Journal
+      </Text>
+      <Text style={[styles.headerSubtitle, { color: currentColors.textSecondary }]}>
+        Track your emotions and thoughts
+      </Text>
+    </View>
+  );
 
-  const renderTagSelector = () => {
-    return (
-      <Card>
-        <Text style={styles.sectionTitle}>Add tags (optional)</Text>
-        <View style={styles.tagsContainer}>
-          {tags.map((tag) => (
-            <TouchableOpacity
-              key={tag}
+  const renderMoodSelector = () => (
+    <Card style={{ backgroundColor: currentColors.surface }}>
+      <Text style={[styles.sectionTitle, { color: currentColors.text }]}>
+        How are you feeling?
+      </Text>
+      <View style={styles.moodContainer}>
+        {moods.map((mood) => (
+          <TouchableOpacity
+            key={mood.value}
+            style={[
+              styles.moodButton,
+              { borderColor: currentColors.border },
+              selectedMood === mood.value && {
+                borderColor: colors.primary,
+                backgroundColor: colors.primary + "10",
+              },
+            ]}
+            onPress={() => handleMoodSelect(mood.value)}
+          >
+            <Text style={styles.moodEmoji}>{mood.emoji}</Text>
+            <Text style={[styles.moodLabel, { color: currentColors.text }]}>
+              {mood.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </Card>
+  );
+
+  const renderNoteInput = () => (
+    <Card style={{ backgroundColor: currentColors.surface }}>
+      <Text style={[styles.sectionTitle, { color: currentColors.text }]}>
+        Write your thoughts (optional)
+      </Text>
+      <TextInput
+        style={[
+          styles.noteInput,
+          {
+            borderColor: currentColors.border,
+            color: currentColors.text,
+            backgroundColor: currentColors.background,
+          },
+        ]}
+        placeholder="How are you feeling today? What's on your mind?"
+        placeholderTextColor={currentColors.textSecondary}
+        value={noteText}
+        onChangeText={setNoteText}
+        multiline
+        textAlignVertical="top"
+      />
+    </Card>
+  );
+
+  const renderTagSelector = () => (
+    <Card style={{ backgroundColor: currentColors.surface }}>
+      <Text style={[styles.sectionTitle, { color: currentColors.text }]}>
+        Add tags (optional)
+      </Text>
+      <View style={styles.tagsContainer}>
+        {tags.map((tag) => (
+          <TouchableOpacity
+            key={tag}
+            style={[
+              styles.tagButton,
+              { borderColor: currentColors.border },
+              selectedTags.includes(tag) && {
+                backgroundColor: colors.primary,
+                borderColor: colors.primary,
+              },
+            ]}
+            onPress={() => handleTagToggle(tag)}
+          >
+            <Text
               style={[
-                styles.tagButton,
-                selectedTags.includes(tag) && styles.selectedTag,
+                styles.tagText,
+                { color: currentColors.text },
+                selectedTags.includes(tag) && { color: "#FFFFFF" },
               ]}
-              onPress={() => handleTagToggle(tag)}
             >
-              <Text
-                style={[
-                  styles.tagText,
-                  selectedTags.includes(tag) && styles.selectedTagText,
-                ]}
-              >
-                {tag}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Card>
-    );
-  };
+              {tag}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </Card>
+  );
 
   const renderJournalEntry = ({ item }) => {
     const date = new Date(item.date);
     const selectedMoodObj = moods.find((m) => m.value === item.mood);
 
     return (
-      <Card style={styles.entryCard}>
+      <Card style={[styles.entryCard, { backgroundColor: currentColors.surface }]}>
         <View style={styles.entryHeader}>
           <View style={styles.entryInfo}>
-            <Text style={styles.entryDate}>
+            <Text style={[styles.entryDate, { color: currentColors.textSecondary }]}>
               {date.toLocaleDateString()} at{" "}
               {date.toLocaleTimeString([], {
                 hour: "2-digit",
@@ -141,7 +191,7 @@ const JournalScreen = () => {
                 <Text style={styles.entryMoodEmoji}>
                   {selectedMoodObj.emoji}
                 </Text>
-                <Text style={styles.entryMoodLabel}>
+                <Text style={[styles.entryMoodLabel, { color: currentColors.text }]}>
                   {selectedMoodObj.label}
                 </Text>
               </View>
@@ -149,7 +199,11 @@ const JournalScreen = () => {
           </View>
         </View>
 
-        {item.note && <Text style={styles.entryNote}>{item.note}</Text>}
+        {item.note && (
+          <Text style={[styles.entryNote, { color: currentColors.text }]}>
+            {item.note}
+          </Text>
+        )}
 
         {item.tags && item.tags.length > 0 && (
           <View style={styles.entryTags}>
@@ -165,229 +219,185 @@ const JournalScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Journal & Reflection</Text>
-          <Text style={styles.headerSubtitle}>
-            Record your thoughts and feelings
-          </Text>
-        </View>
-
+    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.background }]}>
+      {renderHeader()}
+      
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {renderMoodSelector()}
-
-        <Card>
-          <Text style={styles.sectionTitle}>Write a note</Text>
-          <TextInput
-            style={styles.noteInput}
-            value={noteText}
-            onChangeText={setNoteText}
-            placeholder="How was your day? What are you grateful for? What challenges did you face?"
-            placeholderTextColor={Colors.light.textSecondary}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-        </Card>
-
+        {renderNoteInput()}
         {renderTagSelector()}
 
         <Button
           title="Save Entry"
           onPress={handleSaveEntry}
-          style={styles.saveButton}
           disabled={!selectedMood && !noteText.trim()}
+          style={styles.saveButton}
         />
 
         <View style={styles.entriesHeader}>
-          <Text style={styles.entriesTitle}>Previous Entries</Text>
+          <Text style={[styles.entriesTitle, { color: currentColors.text }]}>
+            Previous Entries
+          </Text>
         </View>
 
-        {journalEntries.length > 0 ? (
+        {journalEntries && journalEntries.length > 0 ? (
           <FlatList
             data={journalEntries}
             renderItem={renderJournalEntry}
             keyExtractor={(item) => item.id}
-            scrollEnabled={false}
             style={styles.entriesList}
+            scrollEnabled={false}
           />
         ) : (
-          <Card>
-            <Text style={styles.noEntriesText}>
-              No journal entries yet. Start by writing your first entry above!
-            </Text>
-          </Card>
+          <Text style={[styles.noEntriesText, { color: currentColors.textSecondary }]}>
+            No journal entries yet. Start by adding your first entry above!
+          </Text>
         )}
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+  },
+  header: {
+    paddingHorizontal: spacing.lg,
+    alignItems: "center",
+    borderBottomWidth: 1,
+      paddingVertical: spacing.md,
+  minHeight: 60, // Reduced height
+  },
+  headerTitle: {
+    fontSize: fontSizes.xl,
+    fontWeight: "bold",
+  },
+  headerSubtitle: {
+    fontSize: fontSizes.sm,
+    marginTop: spacing.xs,
+    textAlign: "center",
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: Spacing.md,
-  },
-  header: {
-    paddingVertical: Spacing.lg,
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: FontSizes.xl,
-    fontWeight: "bold",
-    color: Colors.light.text,
-  },
-  headerSubtitle: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
-    marginTop: Spacing.xs,
+    paddingHorizontal: spacing.md,
   },
   sectionTitle: {
-    fontSize: FontSizes.lg,
+    fontSize: fontSizes.lg,
     fontWeight: "600",
-    color: Colors.light.text,
-    marginBottom: Spacing.md,
+    marginBottom: spacing.md,
   },
   moodContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    gap: Spacing.sm,
+    gap: spacing.sm,
   },
   moodButton: {
     alignItems: "center",
-    padding: Spacing.sm,
-    borderRadius: BorderRadius.md,
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
     borderWidth: 2,
-    borderColor: Colors.light.border,
     width: "30%",
     minWidth: 80,
   },
-  selectedMood: {
-    borderColor: Colors.primary,
-    backgroundColor: Colors.primary + "10",
-  },
   moodEmoji: {
     fontSize: 24,
-    marginBottom: Spacing.xs,
+    marginBottom: spacing.xs,
   },
   moodLabel: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.text,
+    fontSize: fontSizes.sm,
     textAlign: "center",
   },
   noteInput: {
     borderWidth: 1,
-    borderColor: Colors.light.border,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    fontSize: FontSizes.md,
-    color: Colors.light.text,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    fontSize: fontSizes.md,
     minHeight: 100,
   },
   tagsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: Spacing.sm,
+    gap: spacing.sm,
   },
   tagButton: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.light.border,
-  },
-  selectedTag: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
   },
   tagText: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.text,
-  },
-  selectedTagText: {
-    color: "#FFFFFF",
+    fontSize: fontSizes.sm,
   },
   saveButton: {
-    marginVertical: Spacing.lg,
+    marginVertical: spacing.lg,
   },
   entriesHeader: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.md,
+    marginTop: spacing.lg,
+    marginBottom: spacing.md,
   },
   entriesTitle: {
-    fontSize: FontSizes.lg,
+    fontSize: fontSizes.lg,
     fontWeight: "600",
-    color: Colors.light.text,
   },
   entriesList: {
-    marginBottom: Spacing.xl,
+    marginBottom: spacing.xl,
   },
   entryCard: {
-    marginBottom: Spacing.sm,
+    marginBottom: spacing.sm,
   },
   entryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: Spacing.sm,
+    marginBottom: spacing.sm,
   },
   entryInfo: {
     flex: 1,
   },
   entryDate: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.sm,
   },
   entryMood: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: Spacing.xs,
+    marginTop: spacing.xs,
   },
   entryMoodEmoji: {
     fontSize: 16,
-    marginRight: Spacing.xs,
+    marginRight: spacing.xs,
   },
   entryMoodLabel: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.text,
+    fontSize: fontSizes.sm,
     fontWeight: "500",
   },
   entryNote: {
-    fontSize: FontSizes.md,
-    color: Colors.light.text,
+    fontSize: fontSizes.md,
     lineHeight: 22,
-    marginBottom: Spacing.sm,
+    marginBottom: spacing.sm,
   },
   entryTags: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: Spacing.xs,
+    gap: spacing.xs,
   },
   entryTag: {
-    backgroundColor: Colors.primary + "20",
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs / 2,
-    borderRadius: BorderRadius.sm,
+    backgroundColor: colors.primary + "20",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs / 2,
+    borderRadius: borderRadius.sm,
   },
   entryTagText: {
-    fontSize: FontSizes.xs,
-    color: Colors.primary,
+    fontSize: fontSizes.xs,
+    color: colors.primary,
     fontWeight: "500",
   },
   noEntriesText: {
-    fontSize: FontSizes.md,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.md,
     textAlign: "center",
     fontStyle: "italic",
+    marginTop: spacing.lg,
+    paddingHorizontal: spacing.lg,
   },
 });
-
-export default JournalScreen;

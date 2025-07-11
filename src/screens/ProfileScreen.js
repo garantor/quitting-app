@@ -12,7 +12,7 @@ import {
 import { useUser } from "../context/UserContext";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import { Colors, Spacing, FontSizes } from "../constants/theme";
+import { colors, spacing, fontSizes } from "../constants/theme";
 
 const ProfileScreen = () => {
   const { darkMode, toggleTheme, streak, journalEntries } = useUser();
@@ -77,7 +77,7 @@ const ProfileScreen = () => {
     <SafeAreaView
       style={[
         styles.container,
-        darkMode && { backgroundColor: Colors.dark.background },
+        darkMode && { backgroundColor: colors.dark.background },
       ]}
     >
       <ScrollView
@@ -91,7 +91,7 @@ const ProfileScreen = () => {
           <Text
             style={[
               styles.headerTitle,
-              darkMode && { color: Colors.dark.text },
+              darkMode && { color: colors.dark.text },
             ]}
           >
             Recovery Warrior
@@ -99,7 +99,7 @@ const ProfileScreen = () => {
           <Text
             style={[
               styles.headerSubtitle,
-              darkMode && { color: Colors.dark.textSecondary },
+              darkMode && { color: colors.dark.textSecondary },
             ]}
           >
             Keep going strong!
@@ -110,13 +110,13 @@ const ProfileScreen = () => {
         <Card
           style={[
             styles.statsCard,
-            darkMode && { backgroundColor: Colors.dark.surface },
+            darkMode && { backgroundColor: colors.dark.surface },
           ]}
         >
           <Text
             style={[
               styles.sectionTitle,
-              darkMode && { color: Colors.dark.text },
+              darkMode && { color: colors.dark.text },
             ]}
           >
             Your Progress
@@ -129,11 +129,11 @@ const ProfileScreen = () => {
         </Card>
 
         {/* Settings */}
-        <Card style={[darkMode && { backgroundColor: Colors.dark.surface }]}>
+        <Card style={[darkMode && { backgroundColor: colors.dark.surface }]}>
           <Text
             style={[
               styles.sectionTitle,
-              darkMode && { color: Colors.dark.text },
+              darkMode && { color: colors.dark.text },
             ]}
           >
             Settings
@@ -145,7 +145,7 @@ const ProfileScreen = () => {
             <Switch
               value={darkMode}
               onValueChange={toggleTheme}
-              trackColor={{ false: Colors.light.border, true: Colors.primary }}
+              trackColor={{ false: colors.light.border, true: colors.primary }}
               thumbColor={darkMode ? "#FFFFFF" : "#f4f3f4"}
             />
           )}
@@ -156,7 +156,7 @@ const ProfileScreen = () => {
             <Switch
               value={false}
               onValueChange={() => {}}
-              trackColor={{ false: Colors.light.border, true: Colors.primary }}
+              trackColor={{ false: colors.light.border, true: colors.primary }}
               thumbColor={"#f4f3f4"}
             />
           )}
@@ -167,18 +167,18 @@ const ProfileScreen = () => {
             <Switch
               value={false}
               onValueChange={() => {}}
-              trackColor={{ false: Colors.light.border, true: Colors.primary }}
+              trackColor={{ false: colors.light.border, true: colors.primary }}
               thumbColor={"#f4f3f4"}
             />
           )}
         </Card>
 
         {/* Data Management */}
-        <Card style={[darkMode && { backgroundColor: Colors.dark.surface }]}>
+        <Card style={[darkMode && { backgroundColor: colors.dark.surface }]}>
           <Text
             style={[
               styles.sectionTitle,
-              darkMode && { color: Colors.dark.text },
+              darkMode && { color: colors.dark.text },
             ]}
           >
             Data Management
@@ -189,7 +189,7 @@ const ProfileScreen = () => {
               <Text
                 style={[
                   styles.actionTitle,
-                  darkMode && { color: Colors.dark.text },
+                  darkMode && { color: colors.dark.text },
                 ]}
               >
                 Export Data
@@ -197,7 +197,7 @@ const ProfileScreen = () => {
               <Text
                 style={[
                   styles.actionSubtitle,
-                  darkMode && { color: Colors.dark.textSecondary },
+                  darkMode && { color: colors.dark.textSecondary },
                 ]}
               >
                 Download your journal and progress data
@@ -210,30 +210,30 @@ const ProfileScreen = () => {
 
           <TouchableOpacity style={styles.actionRow} onPress={handleResetData}>
             <View>
-              <Text style={[styles.actionTitle, { color: Colors.error }]}>
+              <Text style={[styles.actionTitle, { color: colors.error }]}>
                 Reset All Data
               </Text>
               <Text
                 style={[
                   styles.actionSubtitle,
-                  darkMode && { color: Colors.dark.textSecondary },
+                  darkMode && { color: colors.dark.textSecondary },
                 ]}
               >
                 Permanently delete all app data
               </Text>
             </View>
-            <Text style={[styles.actionArrow, { color: Colors.error }]}>
+            <Text style={[styles.actionArrow, { color: colors.error }]}>
               ⚠️
             </Text>
           </TouchableOpacity>
         </Card>
 
         {/* Support */}
-        <Card style={[darkMode && { backgroundColor: Colors.dark.surface }]}>
+        <Card style={[darkMode && { backgroundColor: colors.dark.surface }]}>
           <Text
             style={[
               styles.sectionTitle,
-              darkMode && { color: Colors.dark.text },
+              darkMode && { color: colors.dark.text },
             ]}
           >
             Support
@@ -244,7 +244,7 @@ const ProfileScreen = () => {
               <Text
                 style={[
                   styles.actionTitle,
-                  darkMode && { color: Colors.dark.text },
+                  darkMode && { color: colors.dark.text },
                 ]}
               >
                 Help & Support
@@ -252,7 +252,7 @@ const ProfileScreen = () => {
               <Text
                 style={[
                   styles.actionSubtitle,
-                  darkMode && { color: Colors.dark.textSecondary },
+                  darkMode && { color: colors.dark.textSecondary },
                 ]}
               >
                 Get help or contact support
@@ -267,7 +267,7 @@ const ProfileScreen = () => {
           <Text
             style={[
               styles.appInfoText,
-              darkMode && { color: Colors.dark.textSecondary },
+              darkMode && { color: colors.dark.textSecondary },
             ]}
           >
             Clarity Recovery App v1.0.0
@@ -275,7 +275,7 @@ const ProfileScreen = () => {
           <Text
             style={[
               styles.appInfoText,
-              darkMode && { color: Colors.dark.textSecondary },
+              darkMode && { color: colors.dark.textSecondary },
             ]}
           >
             Made with ❤️ for your recovery journey
@@ -289,46 +289,47 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
+    backgroundColor: colors.light.background,
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: Spacing.md,
+    paddingHorizontal: spacing.md,
   },
   header: {
     alignItems: "center",
-    paddingVertical: Spacing.xl,
+    paddingVertical: spacing.md,
+  minHeight: 60, // Reduced height
   },
   avatarContainer: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: Spacing.md,
+    marginBottom: spacing.md,
   },
   avatarText: {
     fontSize: 32,
   },
   headerTitle: {
-    fontSize: FontSizes.xl,
+    fontSize: fontSizes.xl,
     fontWeight: "bold",
-    color: Colors.light.text,
-    marginBottom: Spacing.xs,
+    color: colors.light.text,
+    marginBottom: spacing.xs,
   },
   headerSubtitle: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.sm,
+    color: colors.light.textSecondary,
   },
   statsCard: {
-    marginBottom: Spacing.md,
+    marginBottom: spacing.md,
   },
   sectionTitle: {
-    fontSize: FontSizes.lg,
+    fontSize: fontSizes.lg,
     fontWeight: "600",
-    color: Colors.light.text,
-    marginBottom: Spacing.md,
+    color: colors.light.text,
+    marginBottom: spacing.md,
   },
   statsContainer: {
     flexDirection: "row",
@@ -339,70 +340,70 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   statValue: {
-    fontSize: FontSizes.xxl,
+    fontSize: fontSizes.xxl,
     fontWeight: "bold",
-    color: Colors.primary,
+    color: colors.primary,
   },
   statTitle: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.text,
-    marginTop: Spacing.xs,
+    fontSize: fontSizes.sm,
+    color: colors.light.text,
+    marginTop: spacing.xs,
   },
   statSubtitle: {
-    fontSize: FontSizes.xs,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.xs,
+    color: colors.light.textSecondary,
   },
   settingRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: Spacing.sm,
+    paddingVertical: spacing.sm,
   },
   settingInfo: {
     flex: 1,
   },
   settingTitle: {
-    fontSize: FontSizes.md,
-    color: Colors.light.text,
-    marginBottom: Spacing.xs,
+    fontSize: fontSizes.md,
+    color: colors.light.text,
+    marginBottom: spacing.xs,
   },
   settingSubtitle: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.sm,
+    color: colors.light.textSecondary,
   },
   actionRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: Spacing.md,
+    paddingVertical: spacing.md,
   },
   actionTitle: {
-    fontSize: FontSizes.md,
-    color: Colors.light.text,
-    marginBottom: Spacing.xs,
+    fontSize: fontSizes.md,
+    color: colors.light.text,
+    marginBottom: spacing.xs,
   },
   actionSubtitle: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.sm,
+    color: colors.light.textSecondary,
   },
   actionArrow: {
-    fontSize: FontSizes.lg,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.lg,
+    color: colors.light.textSecondary,
   },
   divider: {
     height: 1,
-    backgroundColor: Colors.light.border,
-    marginVertical: Spacing.sm,
+    backgroundColor: colors.light.border,
+    marginVertical: spacing.sm,
   },
   appInfo: {
     alignItems: "center",
-    paddingVertical: Spacing.xl,
+    paddingVertical: spacing.xl,
   },
   appInfoText: {
-    fontSize: FontSizes.xs,
-    color: Colors.light.textSecondary,
+    fontSize: fontSizes.xs,
+    color: colors.light.textSecondary,
     textAlign: "center",
-    marginBottom: Spacing.xs,
+    marginBottom: spacing.xs,
   },
 });
 

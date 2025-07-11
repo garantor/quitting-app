@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet, Animated } from "react-native";
-import { Colors } from "../constants/theme";
+import { colors } from "../constants/theme";
 
 const ProgressRing = ({ progress = 0, size = 120, strokeWidth = 8 }) => {
   const radius = (size - strokeWidth) / 2;
@@ -20,7 +20,7 @@ const ProgressRing = ({ progress = 0, size = 120, strokeWidth = 8 }) => {
               height: size,
               borderRadius: size / 2,
               borderWidth: strokeWidth,
-              borderColor: Colors.light.border,
+              borderColor: colors.light.border,
             },
           ]}
         />
@@ -33,7 +33,7 @@ const ProgressRing = ({ progress = 0, size = 120, strokeWidth = 8 }) => {
               height: size,
               borderRadius: size / 2,
               borderWidth: strokeWidth,
-              borderColor: Colors.primary,
+              borderColor: colors.primary,
               borderTopColor: "transparent",
               borderRightColor: "transparent",
               borderBottomColor: "transparent",

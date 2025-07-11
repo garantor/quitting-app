@@ -1,134 +1,184 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, SafeAreaView } from "react-native";
-import { useUser } from "../context/UserContext";
-import Button from "../components/Button";
-import Card from "../components/Card";
-import ProgressRing from "../components/ProgressRing";
-import { Colors, Spacing, FontSizes } from "../constants/theme";
+import React, { useContext } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import theme from '../constants/theme';
+import Svg, { Circle } from 'react-native-svg';
+import Button from '../components/Button';
+import { colors, spacing, fontSizes, borderRadius } from "../constants/theme";
+import { UserContext } from '../context/UserContext';
 
-const HomeScreen = ({ navigation }) => {
-  const { streak, currentAffirmation, logUrge } = useUser();
+const HomeScreen = () => {
+  const { isDarkMode } = useContext(UserContext);
+  const currentColors = isDarkMode ? colors.dark : colors.light;
+  
+  // Calculate progress circle values
+  const dayCount = 17;
+  const radius = 90;
+  const circumference = 2 * Math.PI * radius;
+  const progressPercentage = 30;
+  const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
 
-  const handleCoachPress = () => {
-    navigation.navigate("Coach");
-  };
-
-  const handleUrgeYes = () => {
-    logUrge(true);
-  };
-
-  const handleUrgeNo = () => {
-    logUrge(false);
-  };
-
-  const getMotivationalMessage = () => {
-    if (streak === 0) {
-      return "Today is a new beginning. You've got this! 111";
-    } else if (streak < 7) {
-      return `Great start! ${streak} ${streak === 1 ? "day" : "days"} strong!`;
-    } else if (streak < 30) {
-      return `Amazing progress! ${streak} days of clarity!`;
-    } else {
-      return `Incredible! ${streak} days of freedom!`;
-    }
+  const getCurrentDate = () => {
+    const today = new Date();
+    const options = { 
+      weekday: 'long' , 
+      month: 'long' , 
+      day: 'numeric'  
+    };
+    return today.toLocaleDateString('en-US', options).toUpperCase();
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
+    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.background }]}>
+      <StatusBar 
+        barStyle={isDarkMode ? "light-content" : "dark-content"} 
+        backgroundColor={currentColors.background}
+      />
+      
+      <ScrollView 
         style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.dateText}>{new Date().toDateString()}</Text>
-          <Text style={styles.welcomeText}>Welcome back!</Text>
+          <View style={styles.headerSpacer} />
+          <View style={styles.dateContainer}>
+            <Text style={[styles.dateText, { color: currentColors.textSecondary }]}>
+              {getCurrentDate()}
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.settingsButton}>
+            <Ionicons 
+              name="settings-outline" 
+              size={theme.fontSizes.xl} 
+              color={currentColors.textSecondary} 
+            />
+          </TouchableOpacity>
         </View>
 
-        {/* Streak Display */}
-        <Card style={styles.streakCard}>
-          <View style={styles.streakContainer}>
-            <View style={styles.progressContainer}>
-              <ProgressRing progress={Math.min(streak / 90, 1)} size={120} />
-              <View style={styles.progressText}>
-                <Text style={styles.streakNumber}>{streak}</Text>
-                <Text style={styles.streakLabel}>days</Text>
-              </View>
-            </View>
-            <View style={styles.streakInfo}>
-              <Text style={styles.streakTitle}>Current Streak</Text>
-              <Text style={styles.motivationalMessage}>
-                {getMotivationalMessage()}
-              </Text>
-            </View>
-          </View>
-        </Card>
-
-        {/* Daily Affirmation */}
-        <Card style={styles.affirmationCard}>
-          <Text style={styles.affirmationTitle}>Daily Affirmation</Text>
-          <Text style={styles.affirmationText}>{currentAffirmation}</Text>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card>
-          <Text style={styles.sectionTitle}>Quick Check-in</Text>
-          <Text style={styles.questionText}>How are you feeling today?</Text>
-
-          <View style={styles.buttonRow}>
-            <Button
-              title="Great!"
-              onPress={handleUrgeNo}
-              variant="primary"
-              size="small"
-              style={styles.checkInButton}
-            />
-            <Button
-              title="Struggling"
-              onPress={handleUrgeYes}
-              variant="outline"
-              size="small"
-              style={styles.checkInButton}
-            />
-          </View>
-        </Card>
-
-        {/* Coach Access */}
-        <Card>
-          <Text style={styles.sectionTitle}>Need Support?</Text>
-          <Text style={styles.coachDescription}>
-            Talk to Clarity Coach for guidance and motivation
+        {/* Day Counter */}
+        <View style={styles.dayCounterContainer}>
+          <Text style={[styles.dayCounterTitle, { color: currentColors.text }]}>
+            Day {dayCount}
           </Text>
-          <Button
-            title="Talk to Clarity Coach"
-            onPress={handleCoachPress}
-            variant="secondary"
-            style={styles.coachButton}
-          />
-        </Card>
+          <Text style={[styles.dayCounterSubtitle, { color: currentColors.textSecondary }]}>
+            of your journey
+          </Text>
+        </View>
 
-        {/* Quick Stats */}
-        <Card>
-          <Text style={styles.sectionTitle}>Your Progress</Text>
-          <View style={styles.statsContainer}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{streak}</Text>
-              <Text style={styles.statLabel}>Current</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>30</Text>
-              <Text style={styles.statLabel}>Goal</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>
-                {Math.round((streak / 30) * 100)}%
+        {/* Progress Circle */}
+        <View style={styles.progressContainer}>
+          <View style={styles.progressCircle}>
+            <Svg width={200} height={200} viewBox="0 0 200 200">
+              {/* Background Circle */}
+              <Circle
+                cx="100"
+                cy="100"
+                r={radius}
+                stroke={currentColors.border || (isDarkMode ? '#374151' : '#E5E7EB')}
+                strokeWidth="12"
+                fill="transparent"
+              />
+              {/* Progress Circle */}
+              <Circle
+                cx="100"
+                cy="100"
+                r={radius}
+                stroke={colors.primary}
+                strokeWidth="12"
+                fill="transparent"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                transform="rotate(-90 100 100)"
+              />
+            </Svg>
+            <View style={styles.progressText}>
+              <Text style={styles.progressNumber}>
+                {dayCount}
               </Text>
-              <Text style={styles.statLabel}>Progress</Text>
             </View>
           </View>
-        </Card>
+        </View>
+
+        {/* Action Buttons */}
+        <View style={styles.actionsContainer}>
+          {/* Talk to Coach Button */}
+          <TouchableOpacity
+            style={[styles.favoriteActionButton, { 
+              backgroundColor: colors.primary,
+              shadowColor: isDarkMode ? '#000' : colors.secondary,
+              shadowOpacity: isDarkMode ? 0.5 : 0.3,
+            }]}
+            onPress={() => console.log('Talk to Clarity Coach pressed')}
+          >
+            <Ionicons 
+              name="chatbubble-ellipses" 
+              size={theme.fontSizes.xl} 
+              color="#FFFFFF" 
+            />
+            <Text style={styles.coachButtonText}>Talk to Clarity Coach</Text>
+          </TouchableOpacity>
+
+          {/* AI Coach Card */}
+          <View style={[styles.card, { 
+            backgroundColor: currentColors.surface,
+            shadowOpacity: isDarkMode ? 0.3 : 0.1,
+          }]}>
+            <View style={styles.cardContent}>
+              <View style={styles.cardLeft}>
+                <Text style={[styles.cardTitle, { color: currentColors.text }]}>
+                  AI Coach
+                </Text>
+                <Text style={[styles.cardSubtitle, { color: currentColors.textSecondary }]}>
+                  Remember why you started this journey. You've got this!
+                </Text>
+              </View>
+              <TouchableOpacity>
+                <Ionicons name="chevron-forward" size={theme.fontSizes.xxl + 4} color={colors.secondary} />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Journal Card */}
+          <View style={[styles.card, { 
+            backgroundColor: currentColors.surface,
+            shadowOpacity: isDarkMode ? 0.3 : 0.1,
+          }]}>
+            <View style={styles.cardContent}>
+              <View style={styles.cardLeft}>
+                <Text style={[styles.cardTitle, { color: currentColors.text }]}>
+                  My Journal
+                </Text>
+                <Text style={[styles.journalText, { color: currentColors.textSecondary }]}>
+                  Today was tough. I had a strong craving around 5 PM, but I managed to get through it by going for a walk. I'm proud of myself for not giving in. It feels good to be in control.
+                </Text>
+              </View>
+              <TouchableOpacity>
+                <Ionicons name="chevron-forward" size={theme.fontSizes.xxl + 4} color={colors.secondary} />
+              </TouchableOpacity>
+            </View>
+            
+            {/* Add Entry Button */}
+            <TouchableOpacity style={[styles.addEntryButton, {
+              backgroundColor: colors.primary,
+            }]}>
+              <Ionicons name="create-outline" size={theme.fontSizes.xl} color={styles.coachButtonText.color} />
+              <Text style={styles.coachButtonText}>
+                Add to today's entry
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -137,152 +187,136 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
   },
   scrollView: {
     flex: 1,
-    paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.lg,
+  },
+  scrollContent: {
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+    paddingBottom: 100,
   },
   header: {
-    paddingVertical: Spacing.lg,
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.xl,
+  },
+  favoriteActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    gap: spacing.sm,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  headerSpacer: {
+    width: theme.spacing.xl,
+  },
+  dateContainer: {
+    alignItems: 'center',
   },
   dateText: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
-    textAlign: "center",
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '500',
   },
-  welcomeText: {
-    fontSize: FontSizes.xl,
-    fontWeight: "bold",
-    color: Colors.light.text,
-    textAlign: "center",
-    marginTop: Spacing.xs,
+  settingsButton: {
+    padding: theme.spacing.xs,
   },
-  streakCard: {
-    backgroundColor: Colors.primary,
-    marginBottom: Spacing.md,
+  dayCounterContainer: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.xl,
   },
-  streakContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    padding: Spacing.md,
+  dayCounterTitle: {
+    fontSize: theme.fontSizes.xxxl + 4,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  dayCounterSubtitle: {
+    fontSize: theme.fontSizes.md,
+    marginTop: theme.spacing.xs,
   },
   progressContainer: {
-    position: "relative",
-    marginRight: Spacing.lg,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    marginBottom: theme.spacing.xxl - theme.spacing.sm,
+  },
+  progressCircle: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   progressText: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  streakNumber: {
-    fontSize: FontSizes.xxl,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+  progressNumber: {
+    fontSize: theme.fontSizes.xxxl + 4,
+    fontWeight: '800',
+    color: colors.primary,
   },
-  streakLabel: {
-    fontSize: FontSizes.sm,
-    color: "#FFFFFF",
-    opacity: 0.8,
+  actionsContainer: {
+    gap: theme.spacing.md,
   },
-  streakInfo: {
+  coachButtonText: {
+    color: '#FFFFFF',
+    fontSize: theme.fontSizes.md,
+    fontWeight: '700',
+  },
+  card: {
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg - theme.spacing.xs,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  cardContent: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+  cardLeft: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "flex-start",
+    marginRight: theme.spacing.md,
   },
-  streakTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: "600",
-    color: "#FFFFFF",
-    marginBottom: Spacing.xs,
+  cardTitle: {
+    fontSize: theme.fontSizes.md,
+    fontWeight: '700',
+    marginBottom: theme.spacing.xs,
   },
-  motivationalMessage: {
-    fontSize: FontSizes.sm,
-    color: "#FFFFFF",
-    opacity: 0.9,
+  cardSubtitle: {
+    fontSize: theme.fontSizes.sm,
     lineHeight: 20,
   },
-  affirmationCard: {
-    backgroundColor: Colors.secondary,
-    marginBottom: Spacing.md,
-    alignItems: "center",
-  },
-  affirmationTitle: {
-    fontSize: FontSizes.md,
-    fontWeight: "600",
-    color: "#FFFFFF",
-    marginBottom: Spacing.sm,
-    textAlign: "center",
-  },
-  affirmationText: {
-    fontSize: FontSizes.lg,
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontStyle: "italic",
-    lineHeight: 24,
-  },
-  sectionTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: "600",
-    color: Colors.light.text,
-    marginBottom: Spacing.sm,
-  },
-  questionText: {
-    fontSize: FontSizes.md,
-    color: Colors.light.textSecondary,
-    marginBottom: Spacing.md,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
-  },
-  checkInButton: {
-    flex: 1,
-  },
-  coachDescription: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
-    marginBottom: Spacing.md,
+  journalText: {
+    fontSize: theme.fontSizes.sm,
     lineHeight: 20,
+    marginTop: theme.spacing.sm,
   },
-  coachButton: {
-    marginTop: Spacing.sm,
+  addEntryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.md - theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.borderRadius.sm,
+    marginTop: theme.spacing.md,
+    gap: theme.spacing.sm,
   },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: Spacing.sm,
-  },
-  statItem: {
-    alignItems: "center",
-    flex: 1,
-  },
-  statNumber: {
-    fontSize: FontSizes.xl,
-    fontWeight: "bold",
-    color: Colors.primary,
-  },
-  statLabel: {
-    fontSize: FontSizes.sm,
-    color: Colors.light.textSecondary,
-    marginTop: Spacing.xs,
-  },
-  statDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: Colors.light.border,
+  addEntryText: {
+    fontSize: theme.fontSizes.sm,
+    fontWeight: '700',
+    color: colors.secondary,
   },
 });
 

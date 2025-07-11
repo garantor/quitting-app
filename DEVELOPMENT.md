@@ -63,7 +63,7 @@ App
 
 ## Customization
 
-### Theme Colors
+### Theme colors
 
 Edit `src/constants/theme.js` to modify the color palette:
 

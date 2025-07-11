@@ -1,23 +1,26 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TextInput,
+import React, { useState, useContext, useRef, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  ScrollView, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
   SafeAreaView,
+  Animated,
   KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-} from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { Ionicons } from "@expo/vector-icons";
-import Button from "../components/Button";
-import { Colors, Spacing, FontSizes, BorderRadius } from "../constants/theme";
+  Platform
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import { UserContext } from '../context/UserContext';
+import { colors, spacing, fontSizes, borderRadius } from '../constants/theme';
 
-const CoachScreen = () => {
+export default function CoachScreen({ navigation }) {
+  const { isDarkMode } = useContext(UserContext);
+  const currentColors = isDarkMode ? colors.dark : colors.light;
+  const scrollViewRef = useRef();
+  
   const [messages, setMessages] = useState([
     {
       id: "1",
@@ -39,6 +42,8 @@ const CoachScreen = () => {
     },
   ]);
   const [inputText, setInputText] = useState("");
+  const [showQuickReplies, setShowQuickReplies] = useState(true);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const quickReplies = [
     "I'm feeling overwhelmed",
@@ -57,17 +62,20 @@ const CoachScreen = () => {
       "Remember why you started this journey. Your future self is counting on the choices you make today.",
       "Recovery isn't just about what you're giving up - it's about what you're gaining: clarity, self-respect, and genuine happiness.",
     ],
-    affirmation: [
-      "I am stronger than my urges.",
-      "Every day I choose recovery, I grow stronger.",
-      "I am worthy of a life free from addiction.",
-      "Progress, not perfection.",
-      "I choose clarity over temporary pleasure.",
+    goals: [
+      "Your goals are: staying healthy, rebuilding relationships, and finding genuine happiness. Each day clean is a step closer to these goals.",
+      "Remember, you wanted to wake up feeling proud of yourself. You wanted to be present for the people you love. Keep going!",
+      "You started this journey to reclaim your life. Every urge you resist is you choosing your future over temporary pleasure.",
     ],
-    strong: [
-      "That's wonderful to hear! Feeling strong is a sign that your recovery efforts are working.",
-      "I'm so proud of your progress. Use this strength to help others who might be struggling.",
-      "Great! Remember to celebrate these victories, both big and small.",
+    distraction: [
+      "Here are some healthy distractions: take a walk, call a friend, practice deep breathing, listen to music, or try the 5-4-3-2-1 grounding technique.",
+      "Physical activity can help! Try doing 10 push-ups, going for a quick walk, or dancing to your favorite song.",
+      "Engage your mind: read a chapter of a book, do a puzzle, watch a funny video, or practice a hobby you enjoy.",
+    ],
+    overwhelmed: [
+      "Feeling overwhelmed is normal. Let's break it down into smaller pieces. What's the most pressing thing on your mind right now?",
+      "When everything feels like too much, focus on just the next hour. What's one small thing you can do right now to take care of yourself?",
+      "Remember: you don't have to solve everything today. Just focus on staying clean today. That's enough.",
     ],
     default: [
       "Thank you for sharing that with me. Recovery is a journey with ups and downs, and I'm here to support you.",
@@ -76,13 +84,34 @@ const CoachScreen = () => {
     ],
   };
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
   const getBotResponse = (userMessage) => {
     const message = userMessage.toLowerCase();
 
-    if (
+    if (message.includes("overwhelmed") || message.includes("too much")) {
+      return botResponses.overwhelmed[
+        Math.floor(Math.random() * botResponses.overwhelmed.length)
+      ];
+    } else if (message.includes("goals") || message.includes("remind")) {
+      return botResponses.goals[
+        Math.floor(Math.random() * botResponses.goals.length)
+      ];
+    } else if (message.includes("distraction") || message.includes("distract")) {
+      return botResponses.distraction[
+        Math.floor(Math.random() * botResponses.distraction.length)
+      ];
+    } else if (
       message.includes("struggling") ||
       message.includes("urge") ||
-      message.includes("difficult")
+      message.includes("difficult") ||
+      message.includes("hard")
     ) {
       return botResponses.struggling[
         Math.floor(Math.random() * botResponses.struggling.length)
@@ -90,21 +119,6 @@ const CoachScreen = () => {
     } else if (message.includes("motivation") || message.includes("inspire")) {
       return botResponses.motivation[
         Math.floor(Math.random() * botResponses.motivation.length)
-      ];
-    } else if (
-      message.includes("affirmation") ||
-      message.includes("positive")
-    ) {
-      return botResponses.affirmation[
-        Math.floor(Math.random() * botResponses.affirmation.length)
-      ];
-    } else if (
-      message.includes("strong") ||
-      message.includes("good") ||
-      message.includes("great")
-    ) {
-      return botResponses.strong[
-        Math.floor(Math.random() * botResponses.strong.length)
       ];
     } else {
       return botResponses.default[
@@ -115,6 +129,9 @@ const CoachScreen = () => {
 
   const sendMessage = (text = inputText) => {
     if (!text.trim()) return;
+
+    // Hide quick replies after first message
+    setShowQuickReplies(false);
 
     // Add user message
     const userMessage = {
@@ -127,6 +144,11 @@ const CoachScreen = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInputText("");
 
+    // Scroll to bottom
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+
     // Simulate bot response delay
     setTimeout(() => {
       const botMessage = {
@@ -136,309 +158,385 @@ const CoachScreen = () => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
+      
+      // Scroll to bottom after bot response
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }, 1500);
   };
 
-  const renderMessage = ({ item, index }) => {
+  const renderMessage = (message, index) => {
     return (
-      <View
+      <Animated.View
+        key={message.id}
         style={[
-          styles.messageContainer,
-          item.isBot ? styles.botMessage : styles.userMessage,
+          styles.messageWrapper,
+          message.isBot ? styles.botMessageWrapper : styles.userMessageWrapper,
+          {
+            opacity: fadeAnim,
+            transform: [{
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+              })
+            }]
+          }
         ]}
       >
-        {item.isBot && (
+        {message.isBot && (
           <View style={styles.avatarContainer}>
-            <Image
-              source={{
-                uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuCeFwxJx7RAHP_4Se2N1QA45r4nX6oDZpCdazttDWZZaPkkDuZPHwHEch70abm1oQ9j2QeueLxafvEgRXp0VbCwY1aJctrrey03jo3mS5e3J02-Cej2Kr3TwEN0ZCUC06n4mO7xgmCRVPjx9T4LsMk4jvcxWTEtVn6hvwW3pP3UDjPlm-yHVFZSXeXkfUFxNTnWvYVltPIx41dlPs_j06T43m9e4aJxJghXh2Cu7UNspQ2am93SIkcqZewCm93UqmPqGn7VjdUXwck",
-              }}
-              style={styles.avatar}
-            />
+            <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+              <Ionicons name="chatbubble" size={20} color="#FFFFFF" />
+            </View>
+            <View style={[styles.avatarRing, { borderColor: currentColors.surface }]} />
           </View>
         )}
+        
         <View style={styles.messageContent}>
-          {item.isBot && <Text style={styles.senderLabel}>Clarity Coach</Text>}
-          <View
-            style={[
-              styles.messageBubble,
-              item.isBot ? styles.botBubble : styles.userBubble,
-            ]}
-          >
-            <Text
-              style={[
-                styles.messageText,
-                item.isBot ? styles.botText : styles.userText,
-              ]}
-            >
-              {item.text}
+          {message.isBot && (
+            <Text style={[styles.senderName, { color: currentColors.textSecondary }]}>
+              Clarity Coach
+            </Text>
+          )}
+          
+          <View style={[
+            styles.messageBubble,
+            message.isBot ? [
+              styles.botBubble, 
+              { backgroundColor: currentColors.surface }
+            ] : [
+              styles.userBubble, 
+              { backgroundColor: colors.primary }
+            ]
+          ]}>
+            <Text style={[
+              styles.messageText,
+              { 
+                color: message.isBot ? currentColors.text : '#FFFFFF'
+              }
+            ]}>
+              {message.text}
             </Text>
           </View>
         </View>
-      </View>
+      </Animated.View>
     );
   };
 
-  const renderQuickReply = (reply, index) => {
+  const renderQuickReplies = () => {
+    if (!showQuickReplies) return null;
+
     return (
-      <TouchableOpacity
-        key={reply}
-        style={styles.quickReplyButton}
-        onPress={() => sendMessage(reply)}
+      <Animated.View 
+        style={[
+          styles.quickRepliesContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+              })
+            }]
+          }
+        ]}
       >
-        <Text style={styles.quickReplyText}>{reply}</Text>
-      </TouchableOpacity>
+        {quickReplies.map((reply, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.quickReplyButton,
+              { 
+                backgroundColor: currentColors.surface,
+                borderWidth: 1,
+                borderColor: currentColors.border
+              }
+            ]}
+            onPress={() => sendMessage(reply)}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.quickReplyText, { color: currentColors.text }]}>
+              {reply}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </Animated.View>
     );
   };
+
+  // Using Clarity app color palette correctly
+  const gradientColors = isDarkMode 
+    ? ['#111827', '#374151'] // Dark background to dark surface
+    : ['#dbeafe', '#ccfbf1']; // Light blue to light teal
 
   return (
-    <View style={styles.container}>
-      {/* Fixed Header */}
-      <LinearGradient
-        colors={["#DBEAFE", "transparent"]}
-        style={styles.headerGradient}
+    <SafeAreaView style={[styles.container, { backgroundColor: currentColors.background }]}>
+      <KeyboardAvoidingView 
+        style={styles.container} 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <SafeAreaView>
+        {/* Header */}
+        <View style={[styles.headerContainer, { backgroundColor: currentColors.surface, borderBottomColor: currentColors.border }]}>
           <View style={styles.header}>
-            <TouchableOpacity style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#1E293B" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Clarity Coach</Text>
+            {/* <TouchableOpacity 
+              style={[styles.backButton, { backgroundColor: currentColors.background }]}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="arrow-back" size={20} color={currentColors.text} />
+            </TouchableOpacity> */}
+            
+            <Text style={[styles.headerTitle, { color: currentColors.text }]}>
+              Clarity Coach
+            </Text>
+            
             <View style={styles.headerSpacer} />
           </View>
-        </SafeAreaView>
-      </LinearGradient>
+        </View>
 
-      {/* Main Content */}
-      <LinearGradient
-        colors={["#DBEAFE", "#F0FDFA"]}
-        style={styles.mainContent}
-      >
-        <ScrollView
-          style={styles.messagesList}
-          contentContainerStyle={styles.messagesContent}
-          showsVerticalScrollIndicator={false}
+        {/* Messages */}
+        <LinearGradient
+          colors={gradientColors}
+          style={styles.messagesGradient}
         >
-          {messages.map((item, index) => renderMessage({ item, index }))}
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.messagesContainer}
+            contentContainerStyle={styles.messagesContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {messages.map((message, index) => renderMessage(message, index))}
+            {renderQuickReplies()}
+          </ScrollView>
+        </LinearGradient>
 
-          {/* Quick Replies */}
-          <View style={styles.quickRepliesSection}>
-            {quickReplies.map(renderQuickReply)}
-          </View>
-        </ScrollView>
-      </LinearGradient>
-
-      {/* Fixed Bottom Input */}
-      <LinearGradient
-        colors={["rgba(255,255,255,0.8)", "rgba(255,255,255,0.8)"]}
-        style={styles.inputGradient}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <View style={styles.inputContainer}>
-            <View style={styles.inputRow}>
-              <TextInput
-                style={styles.textInput}
-                value={inputText}
-                onChangeText={setInputText}
-                placeholder="Type a message"
-                placeholderTextColor="#64748B"
-                multiline={false}
-                maxLength={500}
+        {/* Input */}
+        <View style={[styles.inputContainer, { backgroundColor: currentColors.surface, borderTopColor: currentColors.border }]}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={[
+                styles.textInput,
+                { 
+                  backgroundColor: currentColors.background,
+                  color: currentColors.text,
+                  borderColor: currentColors.border
+                }
+              ]}
+              placeholder="Type a message"
+              placeholderTextColor={currentColors.textSecondary}
+              value={inputText}
+              onChangeText={setInputText}
+              multiline
+              maxLength={500}
+            />
+            
+            <TouchableOpacity 
+              style={[
+                styles.sendButton, 
+                { 
+                  backgroundColor: inputText.trim() ? colors.primary : currentColors.border
+                }
+              ]}
+              onPress={() => sendMessage()}
+              disabled={!inputText.trim()}
+              activeOpacity={0.8}
+            >
+              <Ionicons 
+                name="send" 
+                size={20} 
+                color={inputText.trim() ? '#FFFFFF' : currentColors.textSecondary} 
               />
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={() => sendMessage()}
-              >
-                <Ionicons name="send" size={20} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
-      </LinearGradient>
-    </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
-  headerGradient: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    paddingTop: Platform.OS === "ios" ? 0 : 40,
+  headerContainer: {
+    borderBottomWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+     minHeight: 60,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.5)",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   headerTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: "bold",
-    color: "#1E293B",
+    fontSize: fontSizes.lg,
+    fontWeight: '700',
     flex: 1,
-    textAlign: "center",
+    textAlign: 'center',
     marginRight: 40,
   },
   headerSpacer: {
     width: 40,
   },
-  mainContent: {
+  messagesGradient: {
     flex: 1,
-    paddingTop: Platform.OS === "ios" ? 100 : 140,
-    paddingBottom: 120,
   },
-  messagesList: {
+  messagesContainer: {
     flex: 1,
   },
   messagesContent: {
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.xl,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+    gap: spacing.lg,
   },
-  messageContainer: {
-    marginBottom: Spacing.lg,
-    flexDirection: "row",
-    alignItems: "flex-end",
+  messageWrapper: {
+    flexDirection: 'row',
+    marginBottom: spacing.md,
   },
-  botMessage: {
-    alignSelf: "flex-start",
+  botMessageWrapper: {
+    alignItems: 'flex-end',
   },
-  userMessage: {
-    alignSelf: "flex-end",
-    flexDirection: "row-reverse",
+  userMessageWrapper: {
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
   },
   avatarContainer: {
-    marginRight: Spacing.sm,
-    marginBottom: Spacing.xs,
+    position: 'relative',
+    marginRight: spacing.sm,
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarRing: {
+    position: 'absolute',
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
+    borderRadius: 22,
     borderWidth: 4,
-    borderColor: "#FFFFFF",
   },
   messageContent: {
     flex: 1,
-    maxWidth: "80%",
+    maxWidth: '80%',
   },
-  senderLabel: {
-    fontSize: FontSizes.xs,
-    color: "#64748B",
-    fontWeight: "500",
-    marginBottom: Spacing.xs,
-    marginLeft: Spacing.sm,
+  senderName: {
+    fontSize: fontSizes.xs,
+    fontWeight: '500',
+    marginBottom: spacing.xs / 2,
   },
   messageBubble: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.lg,
-    maxWidth: 360,
-  },
-  botBubble: {
-    backgroundColor: "#FFFFFF",
-    borderBottomLeftRadius: Spacing.xs,
-    shadowColor: "#000",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.lg,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowRadius: 2,
-    elevation: 1,
+    elevation: 2,
+  },
+  botBubble: {
+    borderBottomLeftRadius: spacing.xs,
   },
   userBubble: {
-    backgroundColor: Colors.primary,
-    borderBottomRightRadius: Spacing.xs,
+    borderBottomRightRadius: spacing.xs,
+    alignSelf: 'flex-end',
   },
   messageText: {
-    fontSize: FontSizes.md,
-    lineHeight: 24,
-    fontWeight: "400",
+    fontSize: fontSizes.md,
+    lineHeight: 22,
   },
-  botText: {
-    color: "#1E293B",
-  },
-  userText: {
-    color: "#FFFFFF",
-  },
-  quickRepliesSection: {
-    alignItems: "center",
-    paddingTop: Spacing.xl,
-    gap: Spacing.sm,
+  quickRepliesContainer: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
   },
   quickReplyButton: {
-    backgroundColor: "rgba(255,255,255,0.8)",
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    borderRadius: 24,
-    minWidth: 84,
-    width: "100%",
-    maxWidth: 320,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: Spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: borderRadius.xxl,
+    width: '100%',
+    maxWidth: 300,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   quickReplyText: {
-    color: "#1E293B",
-    fontSize: FontSizes.md,
-    fontWeight: "500",
-    textAlign: "center",
-  },
-  inputGradient: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopWidth: 1,
-    borderTopColor: "rgba(226,232,240,0.8)",
+    fontSize: fontSizes.md,
+    fontWeight: '500',
   },
   inputContainer: {
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.sm,
-    paddingBottom: Platform.OS === "ios" ? Spacing.xl : Spacing.md,
+    borderTopWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
   },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing.sm,
   },
   textInput: {
     flex: 1,
-    height: 48,
-    backgroundColor: "#F1F5F9",
-    borderRadius: 24,
-    paddingHorizontal: Spacing.lg,
-    fontSize: FontSizes.md,
-    color: "#1E293B",
-    borderWidth: 0,
+    borderRadius: borderRadius.xxl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    fontSize: fontSizes.md,
+    maxHeight: 100,
+    minHeight: 48,
+    borderWidth: 1,
   },
   sendButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#2563EB",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
-
-export default CoachScreen;

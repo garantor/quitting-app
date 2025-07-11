@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Colors, BorderRadius, Spacing } from "../constants/theme";
+import { colors, borderRadius, spacing } from "../constants/theme";
 
 const Card = ({ children, style, elevated = true }) => {
   return (
@@ -12,10 +12,10 @@ const Card = ({ children, style, elevated = true }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.light.surface,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    marginVertical: Spacing.sm,
+    backgroundColor: colors.light.surface,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginVertical: spacing.sm,
   },
   elevated: {
     shadowColor: "#000",
