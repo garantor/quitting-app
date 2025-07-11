@@ -18,6 +18,17 @@ import { colors, spacing } from "../constants/theme";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+// Create a stack navigator for Home that includes Coach
+const HomeStack = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="HomeMain" component={HomeScreen} />
+      <Stack.Screen name="Coach" component={CoachScreen} />
+      <Stack.Screen name="Journal" component={JournalScreen} />
+    </Stack.Navigator>
+  );
+};
+
 const TabNavigator = () => {
   const { isDarkMode } = useContext(UserContext);
   const currentColors = isDarkMode ? colors.dark : colors.light;
@@ -33,8 +44,6 @@ const TabNavigator = () => {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Calendar") {
             iconName = focused ? "calendar" : "calendar-outline";
-          } else if (route.name === "Coach") {
-            iconName = focused ? "chatbubble" : "chatbubble-outline";
           } else if (route.name === "Journal") {
             iconName = focused ? "journal" : "journal-outline";
           } else if (route.name === "Affirmations") {
@@ -81,7 +90,7 @@ const TabNavigator = () => {
     >
       <Tab.Screen 
         name="Home" 
-        component={HomeScreen}
+        component={HomeStack}
         options={{
           tabBarLabel: "Home",
         }}
@@ -91,20 +100,6 @@ const TabNavigator = () => {
         component={CalendarScreen}
         options={{
           tabBarLabel: "Calendar",
-        }}
-      />
-      <Tab.Screen 
-        name="Coach" 
-        component={CoachScreen}
-        options={{
-          tabBarLabel: "Coach",
-        }}
-      />
-      <Tab.Screen 
-        name="Journal" 
-        component={JournalScreen}
-        options={{
-          tabBarLabel: "Journal",
         }}
       />
       <Tab.Screen 

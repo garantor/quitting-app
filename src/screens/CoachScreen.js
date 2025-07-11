@@ -88,7 +88,7 @@ export default function CoachScreen({ navigation }) {
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 500,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   }, []);
 
@@ -166,7 +166,7 @@ export default function CoachScreen({ navigation }) {
     }, 1500);
   };
 
-  const renderMessage = (message, index) => {
+const renderMessage = (message, index) => {
     return (
       <Animated.View
         key={message.id}
@@ -175,12 +175,6 @@ export default function CoachScreen({ navigation }) {
           message.isBot ? styles.botMessageWrapper : styles.userMessageWrapper,
           {
             opacity: fadeAnim,
-            transform: [{
-              translateY: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [20, 0],
-              })
-            }]
           }
         ]}
       >
@@ -233,12 +227,6 @@ export default function CoachScreen({ navigation }) {
           styles.quickRepliesContainer,
           {
             opacity: fadeAnim,
-            transform: [{
-              translateY: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [20, 0],
-              })
-            }]
           }
         ]}
       >
@@ -264,28 +252,28 @@ export default function CoachScreen({ navigation }) {
       </Animated.View>
     );
   };
-
   // Using Clarity app color palette correctly
   const gradientColors = isDarkMode 
     ? ['#111827', '#374151'] // Dark background to dark surface
     : ['#dbeafe', '#ccfbf1']; // Light blue to light teal
 
-  return (
+return (
     <SafeAreaView style={[styles.container, { backgroundColor: currentColors.background }]}>
       <KeyboardAvoidingView 
         style={styles.container} 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={0}
       >
         {/* Header */}
         <View style={[styles.headerContainer, { backgroundColor: currentColors.surface, borderBottomColor: currentColors.border }]}>
           <View style={styles.header}>
-            {/* <TouchableOpacity 
+            <TouchableOpacity 
               style={[styles.backButton, { backgroundColor: currentColors.background }]}
               onPress={() => navigation.goBack()}
               activeOpacity={0.7}
             >
               <Ionicons name="arrow-back" size={20} color={currentColors.text} />
-            </TouchableOpacity> */}
+            </TouchableOpacity>
             
             <Text style={[styles.headerTitle, { color: currentColors.text }]}>
               Clarity Coach
@@ -303,16 +291,21 @@ export default function CoachScreen({ navigation }) {
           <ScrollView
             ref={scrollViewRef}
             style={styles.messagesContainer}
-            contentContainerStyle={styles.messagesContent}
+            contentContainerStyle={[styles.messagesContent, { paddingBottom: 20 }]}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
             {messages.map((message, index) => renderMessage(message, index))}
             {renderQuickReplies()}
           </ScrollView>
         </LinearGradient>
 
-        {/* Input */}
-        <View style={[styles.inputContainer, { backgroundColor: currentColors.surface, borderTopColor: currentColors.border }]}>
+        {/* Input Container */}
+        <View style={[styles.inputContainer, { 
+          backgroundColor: currentColors.surface, 
+          borderTopColor: currentColors.border,
+          minHeight: 70
+        }]}>
           <View style={styles.inputWrapper}>
             <TextInput
               style={[
@@ -320,15 +313,22 @@ export default function CoachScreen({ navigation }) {
                 { 
                   backgroundColor: currentColors.background,
                   color: currentColors.text,
-                  borderColor: currentColors.border
+                  borderColor: currentColors.border,
+                  height: 48
                 }
               ]}
-              placeholder="Type a message"
+              placeholder="Type a message..."
               placeholderTextColor={currentColors.textSecondary}
               value={inputText}
               onChangeText={setInputText}
-              multiline
-              maxLength={500}
+              multiline={true}
+              returnKeyType="send"
+              onSubmitEditing={() => {
+                if (inputText.trim()) {
+                  sendMessage();
+                }
+              }}
+              blurOnSubmit={false}
             />
             
             <TouchableOpacity 
@@ -538,5 +538,41 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  inputContainer: {
+    borderTopWidth: 1,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: spacing.sm,
+  },
+  textInput: {
+    flex: 1,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    fontSize: fontSizes.md,
+    maxHeight: 100,
+    borderWidth: 1,
+    textAlignVertical: 'top',
+  },
+  sendButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
   },
 });

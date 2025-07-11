@@ -74,13 +74,27 @@ export default function JournalScreen({ navigation }) {
   };
 
   const renderHeader = () => (
-    <View style={[styles.header, { borderBottomColor: currentColors.border }]}>
-      <Text style={[styles.headerTitle, { color: currentColors.text }]}>
-        Recovery Journal
-      </Text>
-      <Text style={[styles.headerSubtitle, { color: currentColors.textSecondary }]}>
-        Track your emotions and thoughts
-      </Text>
+    <View style={[styles.header, { backgroundColor: currentColors.surface, borderBottomColor: currentColors.border }]}>
+      <View style={styles.headerContent}>
+        <TouchableOpacity 
+          style={[styles.backButton, { backgroundColor: currentColors.background }]}
+          onPress={() => navigation.goBack()}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="arrow-back" size={20} color={currentColors.text} />
+        </TouchableOpacity>
+        
+        <View style={styles.headerTextContainer}>
+          <Text style={[styles.headerTitle, { color: currentColors.text }]}>
+            Recovery Journal
+          </Text>
+          <Text style={[styles.headerSubtitle, { color: currentColors.textSecondary }]}>
+            Track your emotions and thoughts
+          </Text>
+        </View>
+        
+        <View style={styles.headerSpacer} />
+      </View>
     </View>
   );
 
@@ -233,6 +247,7 @@ export default function JournalScreen({ navigation }) {
           disabled={!selectedMood && !noteText.trim()}
           style={styles.saveButton}
         />
+        
 
         <View style={styles.entriesHeader}>
           <Text style={[styles.entriesTitle, { color: currentColors.text }]}>
@@ -262,12 +277,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
+   header: {
     paddingHorizontal: spacing.lg,
-    alignItems: "center",
     borderBottomWidth: 1,
-      paddingVertical: spacing.md,
-  minHeight: 60, // Reduced height
+    paddingVertical: spacing.md,
+    minHeight: 60,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  headerTextContainer: {
+    flex: 1,
+    alignItems: 'center',
+    marginHorizontal: spacing.md,
+  },
+  headerSpacer: {
+    width: 40,
   },
   headerTitle: {
     fontSize: fontSizes.xl,
@@ -278,6 +316,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     textAlign: "center",
   },
+
   scrollView: {
     flex: 1,
     paddingHorizontal: spacing.md,

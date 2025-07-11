@@ -15,7 +15,7 @@ import Button from '../components/Button';
 import { colors, spacing, fontSizes, borderRadius } from "../constants/theme";
 import { UserContext } from '../context/UserContext';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const { isDarkMode } = useContext(UserContext);
   const currentColors = isDarkMode ? colors.dark : colors.light;
   
@@ -119,7 +119,7 @@ const HomeScreen = () => {
               shadowColor: isDarkMode ? '#000' : colors.secondary,
               shadowOpacity: isDarkMode ? 0.5 : 0.3,
             }]}
-            onPress={() => console.log('Talk to Clarity Coach pressed')}
+            onPress={() => navigation.navigate('Coach')}
           >
             <Ionicons 
               name="chatbubble-ellipses" 
@@ -169,7 +169,7 @@ const HomeScreen = () => {
             </View>
             
             {/* Add Entry Button */}
-            <TouchableOpacity style={[styles.addEntryButton, {
+            <TouchableOpacity onPress={() => navigation.navigate('Journal')} style={[styles.addEntryButton, {
               backgroundColor: colors.primary,
             }]}>
               <Ionicons name="create-outline" size={theme.fontSizes.xl} color={styles.coachButtonText.color} />
