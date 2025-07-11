@@ -11,6 +11,7 @@ const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   const { isFirstTime } = useUser();
+  // console.log("isFirstTime:", isFirstTime);
 
   return (
     <NavigationContainer>

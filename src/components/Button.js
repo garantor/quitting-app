@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontWeight: '600',
+    textAlign: 'center',
   },
   primaryText: {
     color: '#FFFFFF',

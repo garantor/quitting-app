@@ -236,18 +236,26 @@ export default function JournalScreen({ navigation }) {
     <SafeAreaView style={[styles.container, { backgroundColor: currentColors.background }]}>
       {renderHeader()}
       
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={false}
+      >
         {renderMoodSelector()}
         {renderNoteInput()}
         {renderTagSelector()}
 
-        <Button
-          title="Save Entry"
-          onPress={handleSaveEntry}
-          disabled={!selectedMood && !noteText.trim()}
-          style={styles.saveButton}
-        />
-        
+        <View style={styles.saveButtonContainer}>
+          <Button
+            title="💾 Save Entry"
+            onPress={handleSaveEntry}
+            disabled={!selectedMood && !noteText.trim()}
+            style={[
+              styles.saveButton,
+              { opacity: (!selectedMood && !noteText.trim()) ? 0.6 : 1 }
+            ]}
+          />
+        </View>
 
         <View style={styles.entriesHeader}>
           <Text style={[styles.entriesTitle, { color: currentColors.text }]}>
@@ -256,13 +264,11 @@ export default function JournalScreen({ navigation }) {
         </View>
 
         {journalEntries && journalEntries.length > 0 ? (
-          <FlatList
-            data={journalEntries}
-            renderItem={renderJournalEntry}
-            keyExtractor={(item) => item.id}
-            style={styles.entriesList}
-            scrollEnabled={false}
-          />
+          journalEntries.map((item) => (
+            <View key={item.id}>
+              {renderJournalEntry({ item })}
+            </View>
+          ))
         ) : (
           <Text style={[styles.noEntriesText, { color: currentColors.textSecondary }]}>
             No journal entries yet. Start by adding your first entry above!
@@ -272,12 +278,11 @@ export default function JournalScreen({ navigation }) {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-   header: {
+  header: {
     paddingHorizontal: spacing.lg,
     borderBottomWidth: 1,
     paddingVertical: spacing.md,
@@ -316,10 +321,13 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     textAlign: "center",
   },
-
   scrollView: {
     flex: 1,
+    marginBottom: spacing.lg,
+  },
+  scrollViewContent: {
     paddingHorizontal: spacing.md,
+    paddingBottom: spacing.xl,
   },
   sectionTitle: {
     fontSize: fontSizes.lg,
@@ -369,19 +377,23 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: fontSizes.sm,
   },
-  saveButton: {
+  saveButtonContainer: {
     marginVertical: spacing.lg,
+    alignItems: 'center',
+  },
+  saveButton: {
+    width: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.lg,
+    paddingVertical: spacing.md,
   },
   entriesHeader: {
-    marginTop: spacing.lg,
+    marginTop: spacing.md,
     marginBottom: spacing.md,
   },
   entriesTitle: {
     fontSize: fontSizes.lg,
     fontWeight: "600",
-  },
-  entriesList: {
-    marginBottom: spacing.xl,
   },
   entryCard: {
     marginBottom: spacing.sm,
@@ -438,5 +450,6 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     marginTop: spacing.lg,
     paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
   },
 });

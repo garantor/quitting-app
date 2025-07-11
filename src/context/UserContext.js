@@ -119,6 +119,20 @@ export const UserProvider = ({ children }) => {
   const toggleTheme = () => {
     setDarkMode((prev) => !prev);
   };
+   const clearUserData = async () => {
+   
+    try {
+      await AsyncStorage.removeItem("clarityUserData");
+      setStreak(0);
+      setJournalEntries([]);
+      setCalendarData({});
+      setDarkMode(false);
+      setIsFirstTime(true);
+    } catch (error) {
+      console.error("Error clearing user data:", error);
+    }
+  };
+
 
   const value = {
     streak,
@@ -136,6 +150,7 @@ export const UserProvider = ({ children }) => {
     addJournalEntry,
     incrementStreak,
     toggleTheme,
+    clearUserData,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
