@@ -16,11 +16,13 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isFirstTime ? (
+          <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+
+        {/* {isFirstTime ? (
           <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         ) : (
           <Stack.Screen name="MainTabs" component={TabNavigator} />
-        )}
+        )} */}
       </Stack.Navigator>
     </NavigationContainer>
   );

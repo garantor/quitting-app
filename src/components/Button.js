@@ -8,15 +8,20 @@ export default function Button({
   variant = 'primary', 
   size = 'md',
   disabled = false,
+  style,
   ...props 
 }) {
+  // Debug log to see if Button is being rendered
+  console.log('Button rendering:', { title, variant, disabled });
+  
   return (
     <TouchableOpacity
       style={[
         styles.button,
         styles[variant],
         styles[size],
-        disabled && styles.disabled
+        disabled && styles.disabled,
+        style
       ]}
       onPress={onPress}
       disabled={disabled}
@@ -34,6 +39,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 48,
   },
   primary: {
     backgroundColor: colors.primary,

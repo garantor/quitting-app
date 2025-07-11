@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -42,6 +42,7 @@ const onboardingData = [
 const OnboardingScreen = ({ navigation }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { completeOnboarding } = useUser();
+    const scrollViewRef = useRef(null);
 
   const handleScroll = (event) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
@@ -57,6 +58,17 @@ const OnboardingScreen = ({ navigation }) => {
   const handleSkip = () => {
     completeOnboarding();
     navigation.replace("MainTabs");
+  };
+
+    const handleNext = () => {
+    if (currentSlide < onboardingData.length - 1) {
+      const nextSlide = currentSlide + 1;
+      scrollViewRef.current?.scrollTo({
+        x: nextSlide * width,
+        animated: true,
+      });
+      setCurrentSlide(nextSlide);
+    }
   };
 
   const renderSlide = (item) => {
@@ -91,9 +103,12 @@ const OnboardingScreen = ({ navigation }) => {
     );
   };
 
+
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
+        ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
@@ -106,33 +121,38 @@ const OnboardingScreen = ({ navigation }) => {
       {renderPagination()}
 
       <View style={styles.footer}>
-        {currentSlide === onboardingData.length - 1 ? (
-          <Button
-            title="Get Started"
-            onPress={handleGetStarted}
-            style={styles.button}
-          />
-        ) : (
-          <View style={styles.buttonContainer}>
-            <Button
-              title="Skip"
-              onPress={handleSkip}
-            //   variant="ghost"
-              style={styles.skipButton}
-            />
-            <Button
-              title="Next"
-              onPress={() => {
-                // Auto scroll to next slide
-                // This would need a ref to the ScrollView for proper implementation
-              }}
-              style={styles.nextButton}
-            />
-          </View>
-        )}
+      
+        
+        {/* Debug: Add container background to see button area */}
+          {currentSlide === onboardingData.length - 1 ? (
+            <View style={{ marginBottom: 10 }}>
+              <Button
+                title="Get Started"
+                onPress={handleGetStarted}
+                style={styles.button}
+              />
+            </View>
+          ) : (
+            <View style={{  marginBottom: 10 }}>
+              <View style={styles.buttonContainer}>
+                <Button
+                  title="Skip"
+                  onPress={handleSkip}
+                  variant="ghost"
+                  style={styles.skipButton}
+                />
+                <Button
+                  title="Next"
+                  onPress={handleNext}
+                  style={styles.nextButton}
+                />
+              </View>
+            </View>
+          )}
       </View>
     </SafeAreaView>
   );
+
 };
 
 const styles = StyleSheet.create({
@@ -213,21 +233,28 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.xl,
+    paddingTop: spacing.md,
+    backgroundColor: colors.light.background,
+    minHeight: 100, // Ensure minimum height for footer
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: spacing.md,
   },
   button: {
-    width: "100%",
+    minHeight: 48, // Ensure minimum height for button
   },
   skipButton: {
     flex: 1,
-    marginRight: spacing.md,
+    minHeight: 48,
+    borderWidth: 1,
+    borderColor: colors.primary,
   },
   nextButton: {
     flex: 2,
+    minHeight: 48,
   },
 });
 
