@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Pressable } from 'react-native';
 import { colors, spacing, borderRadius, fontSizes } from '../constants/theme';
 
 export default function Button({ 
@@ -15,24 +15,24 @@ export default function Button({
   console.log('Button rendering:', { title, variant, disabled });
   
   return (
-    <TouchableOpacity
-      style={[
+       <Pressable
+      style={({ pressed }) => [
         styles.button,
         styles[variant],
-        styles[size],
+        pressed && !disabled && styles.pressed,
         disabled && styles.disabled,
-        style
+        style,
       ]}
-      onPress={onPress}
+      onPress={disabled ? null : onPress}
       disabled={disabled}
       {...props}
     >
-      <Text style={[styles.text, styles[`${variant}Text`]]}>
+      <Text style={[styles.text, styles[`${variant}Text`], disabled && styles.disabledText]}>
         {title}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
-}
+};
 
 const styles = StyleSheet.create({
   button: {
@@ -82,5 +82,11 @@ const styles = StyleSheet.create({
   outlineText: {
     color: colors.primary,
     fontSize: fontSizes.md,
+  },
+    disabled: {
+    opacity: 0.5,
+  },
+  disabledText: {
+    opacity: 0.7,
   },
 });

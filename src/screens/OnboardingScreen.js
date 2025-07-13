@@ -7,10 +7,12 @@ import {
   Dimensions,
   Image,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { useUser } from "../context/UserContext";
 import Button from "../components/Button";
 import { colors, spacing, fontSizes, borderRadius } from "../constants/theme";
+import { createPasskey, authenticateWithPasskey, checkExistingPasskey } from "../utils/passkey";
 
 const { width } = Dimensions.get("window");
 
@@ -43,6 +45,7 @@ const OnboardingScreen = ({ navigation }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { completeOnboarding } = useUser();
     const scrollViewRef = useRef(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const handleScroll = (event) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
@@ -50,14 +53,69 @@ const OnboardingScreen = ({ navigation }) => {
     setCurrentSlide(Math.round(currentIndex));
   };
 
-  const handleGetStarted = () => {
-    completeOnboarding();
-    navigation.replace("MainTabs");
+ const handleGetStarted = async () => {
+    try {
+      setIsAuthenticating(true);
+      
+      // Check if user already has a passkey
+      const hasExistingPasskey = await checkExistingPasskey();
+      
+      if (hasExistingPasskey) {
+        // Authenticate with existing passkey
+        const authResult = await authenticateWithPasskey();
+        if (authResult.success) {
+          completeOnboarding();
+          navigation.replace("MainTabs");
+        } else {
+          Alert.alert("Authentication Failed", "Please try again or contact support.");
+        }
+      } else {
+        // Create new passkey
+        Alert.alert(
+          "Set Up Secure Access",
+          "Clarity uses passkeys for secure, password-free access to your recovery data. This helps protect your privacy and makes sign-in easier.",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Set Up Passkey",
+              onPress: async () => {
+                const createResult = await createPasskey();
+                if (createResult.success) {
+                  completeOnboarding();
+                  navigation.replace("MainTabs");
+                } else {
+                  Alert.alert("Setup Failed", "Unable to set up passkey. Please try again.");
+                }
+              },
+            },
+          ]
+        );
+      }
+    } catch (error) {
+      console.error("Authentication error:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setIsAuthenticating(false);
+    }
   };
+
+  //   const checkExistingPasskey = async () => {
+  //   // This would check AsyncStorage or your auth system for existing passkey
+  //   // For now, return false to always prompt for new passkey setup
+  //   return false;
+  // };
 
   const handleSkip = () => {
     completeOnboarding();
-    navigation.replace("MainTabs");
+    Alert.alert(
+      "Onboarding Skipped",
+      "You can always set up secure access later in the settings.",
+  
+    );
+    // navigation.replace("MainTabs");
   };
 
     const handleNext = () => {
@@ -120,35 +178,33 @@ const OnboardingScreen = ({ navigation }) => {
 
       {renderPagination()}
 
-      <View style={styles.footer}>
-      
-        
-        {/* Debug: Add container background to see button area */}
-          {currentSlide === onboardingData.length - 1 ? (
-            <View style={{ marginBottom: 10 }}>
+       <View style={styles.footer}>
+        {currentSlide === onboardingData.length - 1 ? (
+          <View style={{ marginBottom: 10 }}>
+            <Button
+              title={isAuthenticating ? "Setting up..." : "Get Started"}
+              onPress={handleGetStarted}
+              style={styles.button}
+              disabled={isAuthenticating}
+            />
+          </View>
+        ) : (
+          <View style={{ marginBottom: 10 }}>
+            <View style={styles.buttonContainer}>
               <Button
-                title="Get Started"
-                onPress={handleGetStarted}
-                style={styles.button}
+                title="Skip"
+                onPress={handleSkip}
+                variant="ghost"
+                style={styles.skipButton}
+              />
+              <Button
+                title="Next"
+                onPress={handleNext}
+                style={styles.nextButton}
               />
             </View>
-          ) : (
-            <View style={{  marginBottom: 10 }}>
-              <View style={styles.buttonContainer}>
-                <Button
-                  title="Skip"
-                  onPress={handleSkip}
-                  variant="ghost"
-                  style={styles.skipButton}
-                />
-                <Button
-                  title="Next"
-                  onPress={handleNext}
-                  style={styles.nextButton}
-                />
-              </View>
-            </View>
-          )}
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
